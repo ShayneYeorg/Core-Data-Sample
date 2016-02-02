@@ -16,6 +16,8 @@
 
 @implementation SearchView
 
+#pragma mark - Public
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -25,6 +27,8 @@
     }
     return self;
 }
+
+#pragma mark - Private
 
 - (void)configDetails {
     self.field = [[UITextField alloc]initWithFrame:CGRectMake(10, 20, 180, 30)];
@@ -40,10 +44,7 @@
 }
 
 - (void)search {
-    NSLog(@"查询");
-    if (self.searchHandler) {
-        self.searchHandler(self.field.text);
-    }
+    if (self.searchHandler) self.searchHandler(self.field.text);
     [self removeFromSuperview];
 }
 

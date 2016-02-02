@@ -20,18 +20,55 @@
 
 @implementation DetailViewController
 
+#pragma mark - Core Data
+
+//新增数据
+- (void)addArticle {
+    NSString *title = self.titleFiled.text;
+    NSString *content = self.contentField.text;
+    
+    Article *article = [NSEntityDescription insertNewObjectForEntityForName:@"Article" inManagedObjectContext:self.appDelegate.managedObjectContext];
+    
+    article.title = title;
+    article.content = [content dataUsingEncoding:NSUTF8StringEncoding];
+    article.createTime = [NSDate date];
+    
+    NSError *error = nil;
+    if ([self.appDelegate.managedObjectContext save:&error]) {
+        if (error) NSLog(@"新增时发生错误:%@,%@",error,[error userInfo]);
+    }
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+//修改数据
+- (void)alterArticle {
+    Article *article = [self.appDelegate.managedObjectContext objectWithID:self.objectID];
+    article.title = self.titleFiled.text;
+    article.content = [self.contentField.text dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSError *error = nil;
+    if ([self.appDelegate.managedObjectContext save:&error]) NSLog(@"修改成功");
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark - Life Cycle
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.appDelegate = [[UIApplication sharedApplication] delegate];
     self.view.backgroundColor = [UIColor whiteColor];
+    self.appDelegate = [[UIApplication sharedApplication] delegate];
     [self configDetails];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)dealloc {
+    NSLog(@"DetailViewController dealloc");
+    self.appDelegate = nil;
 }
+
+#pragma mark - UIConfiguration
 
 - (void)configDetails {
     self.titleFiled = [[UITextField alloc]initWithFrame:CGRectMake(20, 100, 200, 30)];
@@ -50,11 +87,14 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btn];
     
     if (self.theAlterArticle) {
+        //在修改的状态下
         self.titleFiled.text = self.theAlterArticle.title;
         self.contentField.text = [[NSString alloc]initWithData:self.theAlterArticle.content encoding:NSUTF8StringEncoding];
         self.objectID = self.theAlterArticle.objectID;
     }
 }
+
+#pragma mark - Button Action
 
 - (void)saveArticle {
     if (self.objectID) {
@@ -65,49 +105,6 @@
     }
 }
 
-
-#pragma mark - Core Data
-
-- (void)addArticle
-{
-    NSLog(@"新增");
-    NSString *title = self.titleFiled.text;
-    NSString *content = self.contentField.text;
-    
-    Article *article = [NSEntityDescription insertNewObjectForEntityForName:@"Article" inManagedObjectContext:self.appDelegate.managedObjectContext];
-    
-    article.title = title;
-    article.content = [content dataUsingEncoding:NSUTF8StringEncoding];
-    article.createTime = [NSDate date];
-    
-    NSError *error = nil;
-    if([self.appDelegate.managedObjectContext save:&error]) {
-        if (error) NSLog(@"Error when add article:%@,%@",error,[error userInfo]);
-    }
-    
-    [self.navigationController popViewControllerAnimated:YES];
-}
-
-- (void)alterArticle {
-    NSLog(@"修改");
-    
-    NSError *error = nil;
-    Article *article = [self.appDelegate.managedObjectContext objectWithID:self.objectID];
-    article.title = self.titleFiled.text;
-    article.content = [self.contentField.text dataUsingEncoding:NSUTF8StringEncoding];
-    
-    if ([self.appDelegate.managedObjectContext save:&error]) {
-        NSLog(@"修改成功");
-    }
-    
-    [self.navigationController popViewControllerAnimated:YES];
-}
-
 @end
-
-
-
-
-
 
 
